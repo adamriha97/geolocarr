@@ -1,0 +1,4 @@
+PyMuPDF==1.23.20
+pillow==10.2.0
+tabula-py==2.9.0
+pandas==2.2.0
