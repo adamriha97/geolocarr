@@ -42,7 +42,7 @@ class OcrToTableTool:
         self.dilated_image = cv2.dilate(self.thresholded_image, kernel_to_remove_gaps_between_words, iterations=5)
         simple_kernel = np.ones((5,5), np.uint8)
         self.dilated_image = cv2.dilate(self.dilated_image, simple_kernel, iterations=2)
-        # remove lines in order to repair siteations where two colums dilate into each other # new
+        # remove lines in order to repair situations where two colums dilate into each other # new
         self.dilated_image = cv2.subtract(self.dilated_image, self.image_with_lines_only) # new
         # remove_noise_with_erode_and_dilate # new
         #kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2)) # new
