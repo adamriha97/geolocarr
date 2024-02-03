@@ -11,7 +11,7 @@ class TableLinesRemover:
         self.store_process_image("0_grayscaled.jpg", self.grey)
         self.threshold_image()
         self.store_process_image("1_thresholded.jpg", self.thresholded_image)
-        self.invert_image()
+        self.inverted_image = self.invert_image(image = self.thresholded_image)
         self.store_process_image("2_inverted.jpg", self.inverted_image)
         self.erode_vertical_lines()
         self.store_process_image("3_erode_vertical_lines.jpg", self.vertical_lines_eroded_image)
@@ -25,7 +25,9 @@ class TableLinesRemover:
         self.store_process_image("7_image_without_lines.jpg", self.image_without_lines)
         self.remove_noise_with_erode_and_dilate()
         self.store_process_image("8_image_without_lines_noise_removed.jpg", self.image_without_lines_noise_removed)
-        return self.image_without_lines_noise_removed
+        self.image_without_lines_noise_removed_white = self.invert_image(image = self.image_without_lines_noise_removed)
+        self.store_process_image("9_image_without_lines_noise_removed_white.jpg", self.image_without_lines_noise_removed_white)
+        return self.image_without_lines_noise_removed, self.combined_image_dilated, self.image_without_lines_noise_removed_white
 
     def grayscale_image(self):
         self.grey = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
@@ -33,8 +35,8 @@ class TableLinesRemover:
     def threshold_image(self):
         self.thresholded_image = cv2.threshold(self.grey, 127, 255, cv2.THRESH_BINARY)[1]
 
-    def invert_image(self):
-        self.inverted_image = cv2.bitwise_not(self.thresholded_image)
+    def invert_image(self, image):
+        return cv2.bitwise_not(image)
 
     def erode_vertical_lines(self):
         hor = np.array([[1,1,1,1,1,1]])
@@ -65,7 +67,7 @@ class TableLinesRemover:
     def remove_noise_with_erode_and_dilate(self):
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
         self.image_without_lines_noise_removed = cv2.erode(self.image_without_lines, kernel, iterations=1)
-        self.image_without_lines_noise_removed = cv2.dilate(self.image_without_lines_noise_removed, kernel, iterations=1)
+        self.image_without_lines_noise_removed = cv2.dilate(self.image_without_lines_noise_removed, kernel, iterations=2) # original: iterations=1
 
     def store_process_image(self, file_name, image):
         path = "./process_images/table_lines_remover/" + file_name

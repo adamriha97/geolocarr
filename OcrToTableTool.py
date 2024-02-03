@@ -6,10 +6,13 @@ import keras_ocr # new
 
 class OcrToTableTool:
 
-    def __init__(self, image, original_image):
+    def __init__(self, image, original_image, image_with_lines_only, image_without_lines_white):
         self.thresholded_image = image
         self.original_image = original_image
-        self.recognizer = keras_ocr.recognition.Recognizer() # new
+        self.image_with_lines_only = image_with_lines_only # new
+        self.image_without_lines_white = image_without_lines_white # new
+        #self.recognizer = keras_ocr.recognition.Recognizer() # new
+        self.pipeline = keras_ocr.pipeline.Pipeline() # new
 
     def execute(self):
         self.dilate_image()
@@ -39,6 +42,12 @@ class OcrToTableTool:
         self.dilated_image = cv2.dilate(self.thresholded_image, kernel_to_remove_gaps_between_words, iterations=5)
         simple_kernel = np.ones((5,5), np.uint8)
         self.dilated_image = cv2.dilate(self.dilated_image, simple_kernel, iterations=2)
+        # remove lines in order to repair siteations where two colums dilate into each other # new
+        self.dilated_image = cv2.subtract(self.dilated_image, self.image_with_lines_only) # new
+        # remove_noise_with_erode_and_dilate # new
+        #kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2)) # new
+        self.dilated_image = cv2.erode(self.dilated_image, simple_kernel, iterations=7) # new
+        self.dilated_image = cv2.dilate(self.dilated_image, simple_kernel, iterations=7) # new
     
     def find_contours(self):
         result = cv2.findContours(self.dilated_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -101,7 +110,7 @@ class OcrToTableTool:
             for bounding_box in row:
                 x, y, w, h = bounding_box
                 y = y - 5
-                cropped_image = self.original_image[y:y+h, x:x+w]
+                cropped_image = self.original_image[y:y+h, x:x+w] # new: self.image_without_lines_white[y:y+h, x:x+w]
                 image_slice_path = "./ocr_slices/img_" + str(image_number) + ".jpg"
                 cv2.imwrite(image_slice_path, cropped_image)
                 results_from_ocr = self.get_result_from_tersseract(image_slice_path)
@@ -111,8 +120,21 @@ class OcrToTableTool:
             current_row = []
 
     def get_result_from_tersseract(self, image_path):
+        # original code using resseract cli interface
         #output = subprocess.getoutput('tesseract ' + image_path + ' - -l eng --oem 3 --psm 7 --dpi 72 -c tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789().calmg* "')
-        output = self.recognizer.recognize(image = image_path) # new
+
+        # method using Recognizer from keras ocr - seems to be only for images with one word
+        #output = self.recognizer.recognize(image = image_path) # new
+        
+        # method with keras ocr pipeline
+        image = keras_ocr.tools.read(image_path)
+        prediction = self.pipeline.recognize([image])[0]
+        # this will sort the words from the picture from left to right
+        sorted_prediction = sorted(prediction, key=lambda x: x[1][0][0])
+        output = ''
+        for word, location in sorted_prediction:
+            output = output + word.strip() + ' '
+
         output = output.strip()
         return output
 
