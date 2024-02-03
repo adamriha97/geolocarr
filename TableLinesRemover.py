@@ -57,7 +57,7 @@ class TableLinesRemover:
 
     def dilate_combined_image_to_make_lines_thicker(self):
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
-        self.combined_image_dilated = cv2.dilate(self.combined_image, kernel, iterations=5)
+        self.combined_image_dilated = cv2.dilate(self.combined_image, kernel, iterations=7) # original: iterations=5
 
     def subtract_combined_and_dilated_image_from_original_image(self):
         self.image_without_lines = cv2.subtract(self.inverted_image, self.combined_image_dilated)

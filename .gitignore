@@ -1,3 +1,6 @@
+output.csv
 pdfs/*
 pdf_to_image/convert_pdf_to_images/*
 pdf_to_image/get_images/*
+ocr_slices/*
+process_images/*

@@ -2,11 +2,14 @@ import cv2
 import numpy as np
 import subprocess
 
+import keras_ocr # new
+
 class OcrToTableTool:
 
     def __init__(self, image, original_image):
         self.thresholded_image = image
         self.original_image = original_image
+        self.recognizer = keras_ocr.recognition.Recognizer() # new
 
     def execute(self):
         self.dilate_image()
@@ -108,7 +111,8 @@ class OcrToTableTool:
             current_row = []
 
     def get_result_from_tersseract(self, image_path):
-        output = subprocess.getoutput('tesseract ' + image_path + ' - -l eng --oem 3 --psm 7 --dpi 72 -c tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789().calmg* "')
+        #output = subprocess.getoutput('tesseract ' + image_path + ' - -l eng --oem 3 --psm 7 --dpi 72 -c tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789().calmg* "')
+        output = self.recognizer.recognize(image = image_path) # new
         output = output.strip()
         return output
 
