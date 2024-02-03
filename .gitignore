@@ -1,6 +1,6 @@
 output.csv
-pdfs/*
-pdf_to_image/convert_pdf_to_images/*
+pdfs/*.pdf
+pdf_to_image/convert_pdf_to_images/*.jpg
 pdf_to_image/get_images/*
-ocr_slices/*
-process_images/*
+ocr_slices/*.jpg
+process_images/*.jpg
