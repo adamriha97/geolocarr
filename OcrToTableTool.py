@@ -24,8 +24,8 @@ class OcrToTableTool:
         self.mean_height = self.get_mean_height_of_bounding_boxes()
         self.sort_bounding_boxes_by_y_coordinate()
         self.club_all_bounding_boxes_by_similar_y_coordinates_into_rows()
-        self.sort_all_rows_by_x_coordinate()
-        self.crop_each_bounding_box_and_ocr()
+        self.sort_all_rows_by_x_coordinate_new() # new
+        self.crop_each_bounding_box_and_ocr_new() # new
         self.generate_csv_file()
 
     def threshold_image(self):
@@ -102,6 +102,36 @@ class OcrToTableTool:
         for row in self.rows:
             row.sort(key=lambda x: x[0])
 
+    def sort_all_rows_by_x_coordinate_new(self): # new
+        # find the number of occupated columns of the lowest row with maximum occupated columns -> number of columns
+        number_of_columns = 0
+        for row_index in range(len(self.rows)):
+            if len(self.rows[row_index]) >= number_of_columns:
+                number_of_columns = len(self.rows[row_index])
+                index_of_max_row = row_index
+        # create a list of starts of rows
+        row_starts = []
+        for bounding_box in self.rows[index_of_max_row]:
+            row_starts.append(bounding_box[0])
+        row_starts.sort()
+        # create new rows including empty columns
+        new_rows = []
+        for row in self.rows:
+            if len(row) == number_of_columns:
+                new_row = row
+                new_row.sort(key=lambda x: x[0])
+            else:
+                new_row = [(-1, -1, -1, -1) for _ in range(number_of_columns)]
+                for bounding_box in row:
+                    x, y, w, h = bounding_box
+                    end_of_b_box = x + w
+                    for i in range(number_of_columns - 1, -1, -1):
+                        if row_starts[i] < end_of_b_box:
+                            new_row[i] = bounding_box
+                            break
+            new_rows.append(new_row)
+        self.rows = new_rows
+
     def crop_each_bounding_box_and_ocr(self):
         self.table = []
         current_row = []
@@ -116,6 +146,26 @@ class OcrToTableTool:
                 results_from_ocr = self.get_result_from_tersseract(image_slice_path)
                 current_row.append(results_from_ocr)
                 image_number += 1
+            self.table.append(current_row)
+            current_row = []
+
+    def crop_each_bounding_box_and_ocr_new(self): # new
+        self.table = []
+        current_row = []
+        image_number = 0
+        for row in self.rows:
+            for bounding_box in row:
+                x, y, w, h = bounding_box
+                if x == -1:
+                    current_row.append('')
+                else:
+                    y = y - 5
+                    cropped_image = self.original_image[y:y+h, x:x+w] # new: self.image_without_lines_white[y:y+h, x:x+w]
+                    image_slice_path = "./ocr_slices/img_" + str(image_number) + ".jpg"
+                    cv2.imwrite(image_slice_path, cropped_image)
+                    results_from_ocr = self.get_result_from_tersseract(image_slice_path)
+                    current_row.append(results_from_ocr)
+                    image_number += 1
             self.table.append(current_row)
             current_row = []
 

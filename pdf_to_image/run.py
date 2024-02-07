@@ -30,4 +30,4 @@ def tables_from_pdf(pdf_file_path):
     print(tables)
 
 
-convert_pdf_to_images('pdfs/C555005528.pdf') # C555018250
+convert_pdf_to_images('pdfs/C555018250.pdf') # C555018250 C555005528
