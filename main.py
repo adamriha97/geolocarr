@@ -3,7 +3,7 @@ import TableExtractor as te
 import TableLinesRemover as tlr
 import cv2
 
-path_to_image = "./pdf_to_image/convert_pdf_to_images/pdfimage9.jpg" # "./image/nutrition_table.jpg"
+path_to_image = "./pdf_to_image/convert_pdf_to_images/pdfimage4.jpg" # "./image/nutrition_table.jpg"
 table_extractor = te.TableExtractor(path_to_image)
 perspective_corrected_image = table_extractor.execute()
 cv2.imshow("perspective_corrected_image", perspective_corrected_image)
