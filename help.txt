@@ -1,0 +1,4 @@
+https://chairnerd.seatgeek.com/fuzzywuzzy-fuzzy-string-matching-in-python/
+
+https://www.geeksforgeeks.org/python-find-close-matches-input-string-list/
+
