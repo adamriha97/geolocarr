@@ -8,4 +8,6 @@ ocr_slices/*.jpg
 process_images/*/*.jpg
 data/*.csv
 
+validated_addresses/*.json
+
 tests
