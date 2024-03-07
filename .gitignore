@@ -1,6 +1,7 @@
 .env
 
 output.csv
+output_new.csv
 pdfs/*.pdf
 pdf_to_image/convert_pdf_to_images/*.jpg
 pdf_to_image/get_images/*
