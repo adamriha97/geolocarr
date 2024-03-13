@@ -69,13 +69,13 @@ if __name__ == "__main__":
     df = pd.read_csv('output.csv') # bude nutno prepsat
     df['address_for_validation'] = df['ulice'] + ' ' + df['psc'] + ' ' + df['mesto'] # bude nutno prepsat
     addresses = df['address_for_validation'].tolist()
-    addresses = addresses[:5] # bude nutno smazat
+    #addresses = addresses[:5] # bude nutno smazat
 
     columns = ['locality', 'route', 'street_number', 'postal_code', 'sublocality_level_1', 'neighborhood', 'country', 'latitude', 'longitude', 'orig_string']
     val_addr_df = pd.DataFrame(columns=columns)
 
     for address in addresses:
-        #response = validateAddress(url=api_url_with_api_key, address=address)
+        response = validateAddress(url=api_url_with_api_key, address=address)
         addAddressToDF(address)
     
     csv_file = 'output_new.csv'
